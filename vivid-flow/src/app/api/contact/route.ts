@@ -6,19 +6,28 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
 
-    const { email, name, phone, source, score, answers } = data
+    const { email, name, phone, source, score, answers, interest, message } = data
 
     // Build email content based on source
     let subject = 'New Website Enquiry'
     let htmlContent = ''
 
     if (source === 'website-footer-cta') {
-      subject = 'New Contact Form Submission'
+      subject = `New Contact Form: ${name} - ${interest || 'General Enquiry'}`
       htmlContent = `
         <h2>New Contact Form Submission</h2>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Source:</strong> Footer CTA</p>
-        <p><strong>Timestamp:</strong> ${new Date().toLocaleString('en-GB')}</p>
+        <table style="border-collapse: collapse; width: 100%; max-width: 500px;">
+          <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Name:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${name}</td></tr>
+          <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Phone:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${phone}</td></tr>
+          <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Email:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:${email}">${email}</a></td></tr>
+          <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Interested In:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${interest || 'Not specified'}</td></tr>
+          ${message ? `<tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Message:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${message}</td></tr>` : ''}
+          <tr><td style="padding: 8px;"><strong>Submitted:</strong></td><td style="padding: 8px;">${new Date().toLocaleString('en-GB')}</td></tr>
+        </table>
+        <p style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 8px;">
+          <strong>Quick actions:</strong><br>
+          <a href="mailto:${email}">Reply by email</a> | <a href="tel:${phone}">Call ${phone}</a>
+        </p>
       `
     } else if (source === 'ai-readiness-assessment') {
       subject = `New Assessment Lead - Score: ${score}/100`

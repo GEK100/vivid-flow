@@ -2,27 +2,33 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight, Shield, Clock, Calculator, ClipboardCheck, CheckCircle, Loader2 } from 'lucide-react'
+import { ArrowRight, Shield, Clock, Calculator, ClipboardCheck, CheckCircle, Loader2, Send } from 'lucide-react'
 
 export default function CTA() {
-  const [email, setEmail] = useState('')
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    interest: '',
+    message: ''
+  })
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email.trim()) return
+    if (!formData.email.trim()) return
 
     setStatus('loading')
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source: 'website-footer-cta' }),
+        body: JSON.stringify({ ...formData, source: 'website-footer-cta' }),
       })
 
       if (response.ok) {
         setStatus('success')
-        setEmail('')
+        setFormData({ name: '', phone: '', email: '', interest: '', message: '' })
       } else {
         setStatus('error')
       }
@@ -107,7 +113,7 @@ export default function CTA() {
           </div>
         </motion.div>
 
-        {/* Email Form */}
+        {/* Contact Form */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -115,46 +121,104 @@ export default function CTA() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mt-20 bg-white/5 backdrop-blur-sm rounded-3xl p-8 lg:p-10 border border-white/10"
         >
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div>
-              <h3 className="text-xl font-display font-bold text-white mb-2">
-                Prefer email?
-              </h3>
-              <p className="text-slate-400 text-sm">
-                Drop us your email and we'll get back to you within 24 hours.
-              </p>
-            </div>
-            <form onSubmit={handleSubmit} className="flex gap-3">
-              {status === 'success' ? (
-                <div className="flex items-center gap-2 text-emerald-400 text-sm font-medium w-full justify-center py-3">
-                  <CheckCircle className="w-5 h-5" />
-                  Thanks! We'll be in touch soon.
-                </div>
-              ) : (
-                <>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    required
-                    className="flex-1 px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-colors text-sm"
-                  />
-                  <button
-                    type="submit"
-                    disabled={status === 'loading'}
-                    className="px-6 py-3 bg-white text-slate-900 font-semibold rounded-xl hover:bg-slate-100 transition-colors text-sm whitespace-nowrap disabled:opacity-50"
-                  >
-                    {status === 'loading' ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      'Get in Touch'
-                    )}
-                  </button>
-                </>
-              )}
-            </form>
+          <div className="text-center mb-8">
+            <h3 className="text-xl font-display font-bold text-white mb-2">
+              Get in Touch
+            </h3>
+            <p className="text-slate-400 text-sm">
+              Tell us about your business and we'll get back to you within 24 hours.
+            </p>
           </div>
+
+          {status === 'success' ? (
+            <div className="flex flex-col items-center gap-3 py-8">
+              <CheckCircle className="w-12 h-12 text-emerald-400" />
+              <p className="text-emerald-400 text-lg font-medium">Thanks! We'll be in touch soon.</p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4 max-w-xl mx-auto">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Your name"
+                    className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-colors text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Phone *</label>
+                  <input
+                    type="tel"
+                    required
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="07xxx xxx xxx"
+                    className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-colors text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">Email *</label>
+                <input
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="you@business.co.uk"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-colors text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">What are you interested in? *</label>
+                <select
+                  required
+                  value={formData.interest}
+                  onChange={(e) => setFormData({ ...formData, interest: e.target.value })}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-white focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-colors text-sm"
+                >
+                  <option value="" className="bg-slate-800">Select an option...</option>
+                  <option value="AI Voice Receptionist" className="bg-slate-800">AI Voice Receptionist</option>
+                  <option value="Workflow Automation" className="bg-slate-800">Workflow Automation</option>
+                  <option value="Document Processing" className="bg-slate-800">Document Processing</option>
+                  <option value="CRM Integration" className="bg-slate-800">CRM Integration</option>
+                  <option value="General Enquiry" className="bg-slate-800">General Enquiry</option>
+                  <option value="Not Sure - Need Advice" className="bg-slate-800">Not Sure - Need Advice</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">Message (optional)</label>
+                <textarea
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  placeholder="Tell us a bit about your business and what you're looking for..."
+                  rows={3}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-colors text-sm resize-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={status === 'loading'}
+                className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-50"
+              >
+                {status === 'loading' ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Send Message
+                  </>
+                )}
+              </button>
+            </form>
+          )}
         </motion.div>
       </div>
     </section>
