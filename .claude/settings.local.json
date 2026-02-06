@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(frontend-design)",
+      "Bash(mkdir:*)",
+      "Bash(npm install)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(cat:*)",
+      "WebSearch",
+      "Bash(timeout:*)",
+      "Bash(dir \"C:\\\\Claude_Code_Folders\\\\Vivid_Flow\\\\Reports\")",
+      "Bash(ping:*)",
+      "Bash(dir /a /s \"C:\\\\Claude_Code_Folders\\\\Vivid_Flow\")",
+      "Bash(ls -la \"C:\\\\Claude_Code_Folders\\\\Vivid_Flow\\\\research\"\" 2>/dev/null || echo \"Research dir not yet created \")",
+      "Bash(taskkill //F //PID 9336)"
+    ]
+  }
+}
