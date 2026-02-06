@@ -57,8 +57,7 @@ export async function POST(request: NextRequest) {
     const brevoApiKey = process.env.BREVO_API_KEY
 
     if (!brevoApiKey) {
-      console.error('BREVO_API_KEY not configured')
-      return NextResponse.json({ success: true }) // Still return success to user
+      return NextResponse.json({ success: false, error: 'API key not configured' })
     }
 
     const response = await fetch(BREVO_API_URL, {
@@ -75,12 +74,13 @@ export async function POST(request: NextRequest) {
       }),
     })
 
+    const responseData = await response.json()
+
     if (!response.ok) {
-      const error = await response.json()
-      console.error('Brevo error:', error)
+      return NextResponse.json({ success: false, error: responseData })
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, messageId: responseData.messageId })
   } catch (error) {
     console.error('Contact form error:', error)
     return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 })
