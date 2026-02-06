@@ -121,8 +121,7 @@ export default function CTA() {
                 Prefer email?
               </h3>
               <p className="text-slate-400 text-sm">
-                Drop us your email with a brief description of your business and
-                we'll get back to you within 24 hours.
+                Drop us your email and we'll get back to you within 24 hours.
               </p>
             </div>
             <form onSubmit={handleSubmit} className="flex gap-3">
