@@ -114,23 +114,19 @@ export default function ROICalculatorPage() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    const endpoint = process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ENDPOINT
-    if (endpoint) {
-      try {
-        await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...leadData,
-            ...inputs,
-            ...results,
-            source: 'roi-calculator',
-            timestamp: new Date().toISOString(),
-          }),
-        })
-      } catch {
-        // Silently handle - form still shows success
-      }
+    try {
+      await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...leadData,
+          ...inputs,
+          ...results,
+          source: 'roi-calculator',
+        }),
+      })
+    } catch {
+      // Silently handle - form still shows success
     }
 
     setIsSubmitted(true)

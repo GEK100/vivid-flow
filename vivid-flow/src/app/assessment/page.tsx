@@ -274,23 +274,19 @@ export default function AssessmentPage() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    const endpoint = process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ENDPOINT
-    if (endpoint) {
-      try {
-        await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...leadData,
-            answers,
-            score,
-            source: 'ai-readiness-assessment',
-            timestamp: new Date().toISOString(),
-          }),
-        })
-      } catch {
-        // Silently handle
-      }
+    try {
+      await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...leadData,
+          answers,
+          score,
+          source: 'ai-readiness-assessment',
+        }),
+      })
+    } catch {
+      // Silently handle
     }
 
     setIsSubmitting(false)

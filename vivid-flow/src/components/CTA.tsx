@@ -12,24 +12,20 @@ export default function CTA() {
     e.preventDefault()
     if (!email.trim()) return
 
-    const endpoint = process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ENDPOINT
-    if (!endpoint) {
-      // Fallback: open mailto
-      window.location.href = `mailto:hello@vividflow.co.uk?subject=Enquiry from website&body=Please get in touch with me at ${email}`
-      setStatus('success')
-      return
-    }
-
     setStatus('loading')
     try {
-      await fetch(endpoint, {
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source: 'website-footer-cta', timestamp: new Date().toISOString() }),
-        mode: 'no-cors',
+        body: JSON.stringify({ email, source: 'website-footer-cta' }),
       })
-      setStatus('success')
-      setEmail('')
+
+      if (response.ok) {
+        setStatus('success')
+        setEmail('')
+      } else {
+        setStatus('error')
+      }
     } catch {
       setStatus('error')
     }
