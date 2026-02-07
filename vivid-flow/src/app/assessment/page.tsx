@@ -100,7 +100,7 @@ export default function AssessmentPage() {
 
   // Calculate results
   const score = useMemo(() => calculateOpportunityScore(answers, questions), [answers, questions])
-  const savings = useMemo(() => calculateSavings(answers, questions), [answers, questions])
+  const savings = useMemo(() => calculateSavings(answers, questions, selectedSector), [answers, questions, selectedSector])
   const category = useMemo(() => getScoreCategory(score), [score])
 
   // Generate recommendations based on answers
