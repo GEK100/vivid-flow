@@ -1,10 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import { sectorNames } from '@/data/sectors'
+import {
+  coreQuestions,
+  sectorQuestions,
+  defaultSectorQuestions,
+  calculateSavings,
+  calculateOpportunityScore,
+  getScoreCategory,
+  QuizQuestion,
+} from '@/data/assessmentQuestions'
 import {
   ArrowLeft,
   ArrowRight,
@@ -16,163 +25,13 @@ import {
   Loader2,
   ClipboardCheck,
   Download,
+  Clock,
+  PoundSterling,
+  TrendingUp,
 } from 'lucide-react'
 import { generateReport } from '@/utils/generateReport'
 
-interface QuizOption {
-  label: string
-  value: string
-  score: number
-}
-
-interface QuizQuestion {
-  id: number
-  question: string
-  options: QuizOption[]
-}
-
-type QuizPhase = 'quiz' | 'lead-capture' | 'results'
-
-const questions: QuizQuestion[] = [
-  {
-    id: 1,
-    question: 'What sector is your business in?',
-    options: sectorNames.map(name => ({ label: name, value: name.toLowerCase().replace(/\s+/g, '-'), score: 0 })),
-  },
-  {
-    id: 2,
-    question: 'How many people work in your business?',
-    options: [
-      { label: '1-5 employees', value: '1-5', score: 3 },
-      { label: '6-20 employees', value: '6-20', score: 6 },
-      { label: '21-50 employees', value: '21-50', score: 8 },
-      { label: '50+ employees', value: '50+', score: 10 },
-    ],
-  },
-  {
-    id: 3,
-    question: 'How do you currently handle incoming phone calls?',
-    options: [
-      { label: 'I answer them personally', value: 'personal', score: 4 },
-      { label: 'We have a receptionist', value: 'receptionist', score: 7 },
-      { label: 'They go to voicemail', value: 'voicemail', score: 3 },
-      { label: 'We miss most of them', value: 'miss-most', score: 1 },
-    ],
-  },
-  {
-    id: 4,
-    question: 'How do you manage customer/client information?',
-    options: [
-      { label: 'Spreadsheets (Excel/Google Sheets)', value: 'spreadsheets', score: 4 },
-      { label: 'CRM software (HubSpot, Pipedrive, etc.)', value: 'crm', score: 8 },
-      { label: 'Paper notes or memory', value: 'paper', score: 2 },
-      { label: 'Mix of different tools', value: 'mix', score: 5 },
-    ],
-  },
-  {
-    id: 5,
-    question: 'How do you handle invoicing and payments?',
-    options: [
-      { label: 'Manual invoices (Word, PDF, etc.)', value: 'manual', score: 2 },
-      { label: 'Accounting software (Xero, QuickBooks, etc.)', value: 'accounting-software', score: 8 },
-      { label: 'Mix of methods', value: 'mix', score: 5 },
-      { label: 'No structured system', value: 'no-system', score: 1 },
-    ],
-  },
-  {
-    id: 6,
-    question: 'How many hours per week do you spend on admin tasks?',
-    options: [
-      { label: 'Less than 5 hours', value: 'under-5', score: 8 },
-      { label: '5-10 hours', value: '5-10', score: 6 },
-      { label: '10-20 hours', value: '10-20', score: 4 },
-      { label: '20+ hours', value: '20+', score: 2 },
-    ],
-  },
-  {
-    id: 7,
-    question: 'What is your biggest operational frustration?',
-    options: [
-      { label: 'Missed calls and lost leads', value: 'missed-calls', score: 3 },
-      { label: 'Late payments and cash flow', value: 'late-payments', score: 4 },
-      { label: 'Manual paperwork and admin', value: 'paperwork', score: 3 },
-      { label: 'Lack of data and visibility', value: 'no-data', score: 5 },
-    ],
-  },
-  {
-    id: 8,
-    question: 'Have you tried any automation tools before?',
-    options: [
-      { label: 'No, never', value: 'no', score: 3 },
-      { label: 'Yes, basic tools (Zapier, etc.)', value: 'basic', score: 6 },
-      { label: 'Yes, we use several', value: 'several', score: 9 },
-    ],
-  },
-  {
-    id: 9,
-    question: 'How quickly would you like to see improvements?',
-    options: [
-      { label: 'As soon as possible', value: 'asap', score: 10 },
-      { label: 'Within a month', value: 'month', score: 8 },
-      { label: 'Within 3 months', value: '3-months', score: 5 },
-      { label: 'Just exploring for now', value: 'exploring', score: 2 },
-    ],
-  },
-  {
-    id: 10,
-    question: 'What is your monthly budget for business tools and software?',
-    options: [
-      { label: 'Under \u00A3100', value: 'under-100', score: 3 },
-      { label: '\u00A3100-500', value: '100-500', score: 6 },
-      { label: '\u00A3500-1,000', value: '500-1000', score: 8 },
-      { label: 'Over \u00A31,000', value: 'over-1000', score: 10 },
-    ],
-  },
-]
-
-const MAX_SCORE = questions.reduce((sum, q) => {
-  const maxOption = Math.max(...q.options.map(o => o.score))
-  return sum + maxOption
-}, 0)
-
-function getScoreCategory(score: number) {
-  if (score >= 80) return { label: 'Ready to Transform', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', stroke: '#059669' }
-  if (score >= 60) return { label: 'Strong Candidate', color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-200', stroke: '#4f46e5' }
-  if (score >= 40) return { label: 'Good Foundation', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200', stroke: '#d97706' }
-  return { label: 'Early Stage', color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-200', stroke: '#64748b' }
-}
-
-function generateRecommendations(answers: Record<number, string>): string[] {
-  const recs: string[] = []
-
-  if (answers[3] === 'miss-most' || answers[3] === 'voicemail') {
-    recs.push('An AI Voice Receptionist could capture the leads you are currently missing. Businesses typically recover thousands in annual revenue by never missing a call again.')
-  }
-
-  if (answers[4] === 'paper' || answers[4] === 'spreadsheets') {
-    recs.push('Centralising your customer data with CRM integration would give you instant visibility into every client interaction and reduce manual data entry significantly.')
-  }
-
-  if (answers[5] === 'manual' || answers[5] === 'no-system') {
-    recs.push('Automated invoicing could eliminate hours of evening admin and significantly reduce late payments. Voice-to-invoice tools let you create invoices on the go.')
-  }
-
-  if (answers[6] === '10-20' || answers[6] === '20+') {
-    recs.push('With over 10 hours weekly on admin, process automation could free up significant time for revenue-generating work. This is typically the highest-impact area to automate first.')
-  }
-
-  if (answers[7] === 'missed-calls') {
-    recs.push('Your biggest frustration aligns perfectly with our AI Voice Receptionist - the highest-impact quick win for most service businesses.')
-  } else if (answers[7] === 'late-payments') {
-    recs.push('Automated payment chasing with graduated reminders could dramatically improve your cash flow and save hours of manual follow-up each week.')
-  }
-
-  if (recs.length < 3) {
-    recs.push('A free discovery call would help us identify the highest-impact automation opportunity specific to your business and sector.')
-  }
-
-  return recs.slice(0, 4)
-}
+type QuizPhase = 'sector' | 'quiz' | 'lead-capture' | 'results'
 
 function ScoreGauge({ score, category }: { score: number; category: ReturnType<typeof getScoreCategory> }) {
   const radius = 80
@@ -194,7 +53,7 @@ function ScoreGauge({ score, category }: { score: number; category: ReturnType<t
         {/* Score arc */}
         <motion.circle
           cx="100" cy="100" r={radius}
-          fill="none" stroke={category.stroke} strokeWidth="14"
+          fill="none" stroke={category.strokeColor} strokeWidth="14"
           strokeDasharray={circumference}
           initial={{ strokeDashoffset: circumference }}
           animate={{ strokeDashoffset: circumference - (halfCircumference * score / 100) }}
@@ -212,34 +71,92 @@ function ScoreGauge({ score, category }: { score: number; category: ReturnType<t
         >
           {score}
         </motion.span>
-        <span className="text-xs text-slate-500">out of 100</span>
+        <span className="text-xs text-slate-500">Opportunity Score</span>
       </div>
     </div>
   )
 }
 
 export default function AssessmentPage() {
-  const [phase, setPhase] = useState<QuizPhase>('quiz')
+  const [phase, setPhase] = useState<QuizPhase>('sector')
+  const [selectedSector, setSelectedSector] = useState<string>('')
   const [currentStep, setCurrentStep] = useState(0)
-  const [answers, setAnswers] = useState<Record<number, string>>({})
+  const [answers, setAnswers] = useState<Record<string, string>>({})
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward')
   const [leadData, setLeadData] = useState({ name: '', phone: '', email: '' })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [score, setScore] = useState(0)
-  const [recommendations, setRecommendations] = useState<string[]>([])
+
+  // Build questions based on selected sector
+  const questions: QuizQuestion[] = useMemo(() => {
+    if (!selectedSector) return []
+    const sectorSpecific = sectorQuestions[selectedSector] || defaultSectorQuestions
+    return [...coreQuestions, ...sectorSpecific]
+  }, [selectedSector])
 
   const currentQuestion = questions[currentStep]
   const totalQuestions = questions.length
-  const progress = ((currentStep + 1) / totalQuestions) * 100
+  const progress = totalQuestions > 0 ? ((currentStep + 1) / totalQuestions) * 100 : 0
+
+  // Calculate results
+  const score = useMemo(() => calculateOpportunityScore(answers, questions), [answers, questions])
+  const savings = useMemo(() => calculateSavings(answers, questions), [answers, questions])
+  const category = useMemo(() => getScoreCategory(score), [score])
+
+  // Generate recommendations based on answers
+  const recommendations = useMemo(() => {
+    const recs: string[] = []
+
+    if (answers['call-handling'] === 'miss-most' || answers['call-handling'] === 'voicemail') {
+      recs.push(`An AI Voice Receptionist could recover an estimated £${savings.annualRevenuePotential.toLocaleString()} annually by capturing calls you\'re currently missing. Most businesses see 2-4 new clients per month from previously missed calls.`)
+    }
+
+    if (answers['customer-data'] === 'paper' || answers['customer-data'] === 'spreadsheets') {
+      recs.push('Centralising your customer data with CRM integration would give you instant visibility into every client interaction and reduce manual data entry by up to 70%.')
+    }
+
+    if (answers['invoicing'] === 'manual' || answers['invoicing'] === 'struggle') {
+      recs.push(`Automated invoicing could eliminate ${Math.round(savings.adminHoursSaved * 0.4)} hours of admin per week and significantly reduce late payments. Voice-to-invoice tools let you create invoices on the go.`)
+    }
+
+    if (answers['admin-hours'] === '10-20' || answers['admin-hours'] === '20+') {
+      recs.push(`With ${answers['admin-hours'] === '20+' ? '20+' : '10-20'} hours weekly on admin, you could save approximately ${savings.adminHoursSaved} hours per week. That\'s ${Math.round(savings.adminHoursSaved * 52)} hours per year back for revenue-generating work or family time.`)
+    }
+
+    if (answers['biggest-frustration'] === 'missed-calls') {
+      recs.push('Your biggest frustration aligns perfectly with AI Voice Receptionist technology - typically the highest-impact quick win for service businesses.')
+    } else if (answers['biggest-frustration'] === 'late-payments') {
+      recs.push('Automated payment chasing with graduated reminders could dramatically improve your cash flow. Most businesses see a 40-60% reduction in overdue invoices.')
+    }
+
+    // Sector-specific
+    if (answers['document-chasing'] === 'constant') {
+      recs.push('An intelligent document collection agent could automate your client chasing with personalised, escalating reminders - potentially saving 5+ hours per week.')
+    }
+
+    if (answers['certification'] === 'burden') {
+      recs.push('Voice-to-certificate technology could cut your certification time by 70%. Speak your test results and have compliant certificates generated automatically.')
+    }
+
+    if (recs.length < 3) {
+      recs.push('A free discovery call would help us identify the highest-impact automation opportunity specific to your business and sector.')
+    }
+
+    return recs.slice(0, 4)
+  }, [answers, savings])
 
   useEffect(() => {
-    if (answers[currentQuestion.id] !== undefined) {
+    if (currentQuestion && answers[currentQuestion.id] !== undefined) {
       setSelectedOption(answers[currentQuestion.id])
     } else {
       setSelectedOption(null)
     }
-  }, [currentStep, answers, currentQuestion.id])
+  }, [currentStep, answers, currentQuestion])
+
+  const handleSectorSelect = (sector: string) => {
+    setSelectedSector(sector)
+    setPhase('quiz')
+  }
 
   const handleNext = () => {
     if (selectedOption === null) return
@@ -251,16 +168,6 @@ export default function AssessmentPage() {
       setDirection('forward')
       setCurrentStep(currentStep + 1)
     } else {
-      // Calculate score
-      let rawScore = 0
-      questions.forEach(q => {
-        const answer = newAnswers[q.id]
-        const option = q.options.find(o => o.value === answer)
-        if (option) rawScore += option.score
-      })
-      const normalizedScore = Math.round((rawScore / MAX_SCORE) * 100)
-      setScore(normalizedScore)
-      setRecommendations(generateRecommendations(newAnswers))
       setPhase('lead-capture')
     }
   }
@@ -269,6 +176,10 @@ export default function AssessmentPage() {
     if (currentStep > 0) {
       setDirection('backward')
       setCurrentStep(currentStep - 1)
+    } else {
+      // Go back to sector selection
+      setPhase('sector')
+      setSelectedSector('')
     }
   }
 
@@ -277,25 +188,44 @@ export default function AssessmentPage() {
     setIsSubmitting(true)
 
     try {
-      await fetch('/api/contact', {
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...leadData,
           answers,
           score,
+          savings,
+          sector: selectedSector,
+          recommendations,
           source: 'ai-readiness-assessment',
         }),
       })
-    } catch {
-      // Silently handle
+
+      const result = await response.json()
+      console.log('API response:', result)
+    } catch (error) {
+      console.error('Submit error:', error)
     }
 
     setIsSubmitting(false)
     setPhase('results')
   }
 
-  const category = getScoreCategory(score)
+  const handleDownloadPDF = () => {
+    generateReport({
+      name: leadData.name,
+      email: leadData.email,
+      score,
+      category: {
+        label: category.label,
+        color: category.color,
+      },
+      recommendations,
+      answers,
+      savings,
+    })
+  }
 
   return (
     <main className="min-h-screen bg-stone-50">
@@ -327,15 +257,41 @@ export default function AssessmentPage() {
               </span>
             </div>
             <h1 className="text-3xl lg:text-4xl font-display font-bold text-slate-900 mb-3 tracking-tight">
-              AI Readiness Assessment
+              AI Opportunity Assessment
             </h1>
             <p className="text-base text-slate-600 leading-relaxed">
-              Answer 10 quick questions to find out how ready your business is for AI automation.
+              {phase === 'sector'
+                ? 'First, tell us what sector you\'re in so we can ask the right questions.'
+                : 'Answer a few quick questions to discover your automation potential.'}
             </p>
           </motion.div>
 
+          {/* Sector Selection Phase */}
+          {phase === 'sector' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-3xl p-8 lg:p-10 border border-slate-200 shadow-sm"
+            >
+              <h2 className="text-xl font-display font-bold text-slate-900 mb-6 text-center">
+                What sector is your business in?
+              </h2>
+              <div className="grid gap-3">
+                {sectorNames.map((sector) => (
+                  <button
+                    key={sector}
+                    onClick={() => handleSectorSelect(sector)}
+                    className="w-full text-left p-4 rounded-xl border-2 border-slate-100 bg-white hover:border-indigo-300 hover:bg-indigo-50/50 transition-all duration-200"
+                  >
+                    <span className="text-sm font-medium text-slate-700">{sector}</span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
           {/* Quiz Phase */}
-          {phase === 'quiz' && (
+          {phase === 'quiz' && currentQuestion && (
             <>
               {/* Progress Bar */}
               <div className="mb-8">
@@ -366,11 +322,14 @@ export default function AssessmentPage() {
                   transition={{ duration: 0.3 }}
                   className="bg-white rounded-3xl p-8 lg:p-10 border border-slate-200 shadow-sm"
                 >
-                  <h2 className="text-xl lg:text-2xl font-display font-bold text-slate-900 mb-8">
+                  <h2 className="text-xl lg:text-2xl font-display font-bold text-slate-900 mb-2">
                     {currentQuestion.question}
                   </h2>
+                  {currentQuestion.helpText && (
+                    <p className="text-sm text-slate-500 mb-6">{currentQuestion.helpText}</p>
+                  )}
 
-                  <div className="space-y-3">
+                  <div className="space-y-3 mt-6">
                     {currentQuestion.options.map((option) => (
                       <button
                         key={option.value}
@@ -415,14 +374,7 @@ export default function AssessmentPage() {
               <div className="flex justify-between items-center mt-6">
                 <button
                   onClick={handlePrevious}
-                  disabled={currentStep === 0}
-                  className={`
-                    inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all
-                    ${currentStep === 0
-                      ? 'text-slate-300 cursor-not-allowed'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
-                    }
-                  `}
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200 transition-all"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Previous
@@ -463,8 +415,8 @@ export default function AssessmentPage() {
                   Your Results Are Ready!
                 </h2>
                 <p className="text-sm text-slate-600">
-                  Enter your details below to see your personalised AI readiness score
-                  and recommendations.
+                  Enter your details below to see your personalised AI opportunity score
+                  and potential savings.
                 </p>
               </div>
 
@@ -539,7 +491,7 @@ export default function AssessmentPage() {
               {/* Score Card */}
               <div className="bg-white rounded-3xl p-8 lg:p-10 border border-slate-200 shadow-sm text-center">
                 <h2 className="text-xl font-display font-bold text-slate-900 mb-6">
-                  Your AI Readiness Score
+                  Your AI Opportunity Score
                 </h2>
 
                 <ScoreGauge score={score} category={category} />
@@ -548,7 +500,7 @@ export default function AssessmentPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1 }}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${category.bg} ${category.border} border mt-4`}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${category.bgColor} ${category.borderColor} border mt-4`}
                 >
                   <span className={`text-sm font-bold ${category.color}`}>
                     {category.label}
@@ -561,15 +513,54 @@ export default function AssessmentPage() {
                   transition={{ delay: 1.2 }}
                   className="text-sm text-slate-600 mt-4 max-w-md mx-auto"
                 >
-                  {score >= 80
-                    ? 'Your business is well-positioned to benefit significantly from AI automation. You have the foundation in place for rapid implementation.'
-                    : score >= 60
-                    ? 'Your business shows strong potential for AI automation. A few targeted improvements could unlock significant efficiency gains.'
-                    : score >= 40
-                    ? 'You have a good foundation to build on. Starting with one or two key automations would create immediate value.'
-                    : 'You are at the early stages of your automation journey. There is significant opportunity to transform your operations with the right approach.'
-                  }
+                  {category.message}
                 </motion.p>
+              </div>
+
+              {/* Savings Potential */}
+              <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl p-8 lg:p-10 border border-emerald-100">
+                <h3 className="text-lg font-display font-bold text-slate-900 mb-6 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-emerald-600" />
+                  Your Potential Savings
+                </h3>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.3 }}
+                    className="bg-white rounded-2xl p-5 border border-emerald-100"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <Clock className="w-5 h-5 text-emerald-600" />
+                      <span className="text-sm font-medium text-slate-600">Admin Time Saved</span>
+                    </div>
+                    <p className="text-3xl font-display font-bold text-slate-900">
+                      {savings.adminHoursSaved} <span className="text-lg font-normal text-slate-500">hrs/week</span>
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      ~{Math.round(savings.adminHoursSaved * 52)} hours per year
+                    </p>
+                  </motion.div>
+                  {savings.annualRevenuePotential > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1.4 }}
+                      className="bg-white rounded-2xl p-5 border border-emerald-100"
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <PoundSterling className="w-5 h-5 text-emerald-600" />
+                        <span className="text-sm font-medium text-slate-600">Revenue Potential</span>
+                      </div>
+                      <p className="text-3xl font-display font-bold text-slate-900">
+                        £{savings.annualRevenuePotential.toLocaleString()} <span className="text-lg font-normal text-slate-500">/year</span>
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        From captured leads & reduced losses
+                      </p>
+                    </motion.div>
+                  )}
+                </div>
               </div>
 
               {/* Recommendations */}
@@ -600,17 +591,10 @@ export default function AssessmentPage() {
                   Download Your Report
                 </h3>
                 <p className="text-sm text-slate-600 mb-6">
-                  Save your personalised AI readiness report as a PDF to share with your team.
+                  Save your personalised AI opportunity report as a PDF to share with your team.
                 </p>
                 <button
-                  onClick={() => generateReport({
-                    name: leadData.name,
-                    email: leadData.email,
-                    score,
-                    category,
-                    recommendations,
-                    answers
-                  })}
+                  onClick={handleDownloadPDF}
                   className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl text-sm font-semibold transition-colors shadow-lg shadow-indigo-600/20"
                 >
                   <Download className="w-4 h-4" />

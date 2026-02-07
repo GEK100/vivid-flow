@@ -9,20 +9,19 @@ interface ReportData {
     color: string
   }
   recommendations: string[]
-  answers: Record<number, string>
+  answers: Record<string, string>
+  savings?: {
+    adminHoursSaved: number
+    annualRevenuePotential: number
+    adminReductionPercent: number
+  }
 }
 
-const questions: Record<number, string> = {
-  1: 'What sector is your business in?',
-  2: 'How many people work in your business?',
-  3: 'How do you currently handle incoming phone calls?',
-  4: 'How do you manage customer/client information?',
-  5: 'How do you handle invoicing and payments?',
-  6: 'How many hours per week do you spend on admin tasks?',
-  7: 'What is your biggest operational frustration?',
-  8: 'Have you tried any automation tools before?',
-  9: 'How quickly would you like to see improvements?',
-  10: 'What is your monthly budget for business tools and software?',
+function getScoreMessage(score: number): string {
+  if (score >= 75) return 'Your current processes have substantial room for improvement. AI automation could transform how you work, recover lost revenue, and give you back hours every week.'
+  if (score >= 50) return 'You have solid foundations but there are specific areas where automation could save you significant time and help capture more business.'
+  if (score >= 25) return 'You\'re already fairly well organised, but there are still areas where AI could enhance your efficiency and client experience.'
+  return 'Your business is already well-systematised. There may still be advanced AI capabilities that could give you a competitive edge.'
 }
 
 export function generateReport(data: ReportData): void {
@@ -37,7 +36,7 @@ export function generateReport(data: ReportData): void {
   doc.setTextColor(255, 255, 255)
   doc.setFontSize(24)
   doc.setFont('helvetica', 'bold')
-  doc.text('AI Readiness Report', 20, 28)
+  doc.text('AI Opportunity Report', 20, 28)
 
   doc.setFontSize(11)
   doc.setFont('helvetica', 'normal')
@@ -53,7 +52,7 @@ export function generateReport(data: ReportData): void {
 
   doc.setFontSize(14)
   doc.setFont('helvetica', 'bold')
-  doc.text('Your AI Readiness Score', 20, yPos + 8)
+  doc.text('Your AI Opportunity Score', 20, yPos + 8)
 
   // Score circle
   const centerX = pageWidth / 2
@@ -88,20 +87,43 @@ export function generateReport(data: ReportData): void {
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(71, 85, 105)
 
-  let interpretation = ''
-  if (data.score >= 80) {
-    interpretation = 'Your business is well-positioned to benefit significantly from AI automation. You have the foundation in place for rapid implementation and should see quick returns on any automation investment.'
-  } else if (data.score >= 60) {
-    interpretation = 'Your business shows strong potential for AI automation. A few targeted improvements could unlock significant efficiency gains. You are in an excellent position to start with high-impact automations.'
-  } else if (data.score >= 40) {
-    interpretation = 'You have a good foundation to build on. Starting with one or two key automations would create immediate value while setting you up for more advanced solutions in the future.'
-  } else {
-    interpretation = 'You are at the early stages of your automation journey. There is significant opportunity to transform your operations with the right approach. Starting with simple, high-impact automations can deliver quick wins.'
-  }
-
+  const interpretation = getScoreMessage(data.score)
   const interpretLines = doc.splitTextToSize(interpretation, pageWidth - 40)
   doc.text(interpretLines, 20, yPos)
   yPos += interpretLines.length * 5 + 15
+
+  // Savings Section (if available)
+  if (data.savings && (data.savings.adminHoursSaved > 0 || data.savings.annualRevenuePotential > 0)) {
+    doc.setFillColor(236, 253, 245) // Emerald-50
+    doc.roundedRect(15, yPos - 5, pageWidth - 30, 45, 3, 3, 'F')
+
+    doc.setTextColor(6, 95, 70) // Emerald-800
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Your Potential Savings', 20, yPos + 8)
+
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'normal')
+
+    // Admin hours saved
+    doc.setFont('helvetica', 'bold')
+    doc.text(`${data.savings.adminHoursSaved} hours/week`, 25, yPos + 22)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9)
+    doc.text(`(~${Math.round(data.savings.adminHoursSaved * 52)} hours per year)`, 25, yPos + 30)
+
+    // Revenue potential
+    if (data.savings.annualRevenuePotential > 0) {
+      doc.setFontSize(11)
+      doc.setFont('helvetica', 'bold')
+      doc.text(`£${data.savings.annualRevenuePotential.toLocaleString()}/year`, 100, yPos + 22)
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(9)
+      doc.text('potential revenue recovery', 100, yPos + 30)
+    }
+
+    yPos += 55
+  }
 
   // Recommendations
   doc.setTextColor(0, 0, 0)
@@ -114,6 +136,12 @@ export function generateReport(data: ReportData): void {
   doc.setFont('helvetica', 'normal')
 
   data.recommendations.forEach((rec, index) => {
+    // Check if we need a new page
+    if (yPos > 250) {
+      doc.addPage()
+      yPos = 20
+    }
+
     doc.setFillColor(238, 242, 255) // Indigo-50
     const recLines = doc.splitTextToSize(rec, pageWidth - 55)
     const boxHeight = recLines.length * 5 + 8
@@ -132,7 +160,7 @@ export function generateReport(data: ReportData): void {
   yPos += 10
 
   // Next Steps
-  if (yPos > 230) {
+  if (yPos > 220) {
     doc.addPage()
     yPos = 20
   }
@@ -147,7 +175,7 @@ export function generateReport(data: ReportData): void {
 
   doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
-  const ctaText = 'Book a free 15-minute discovery call with our team. We will review your score together and identify the highest-impact automation for your business.'
+  const ctaText = 'Book a free 15-minute discovery call with our team. We\'ll review your score together and identify the highest-impact automation for your business.'
   const ctaLines = doc.splitTextToSize(ctaText, pageWidth - 45)
   doc.text(ctaLines, 20, yPos + 22)
 
@@ -167,5 +195,5 @@ export function generateReport(data: ReportData): void {
   )
 
   // Save
-  doc.save(`AI-Readiness-Report-${data.name.replace(/\s+/g, '-')}.pdf`)
+  doc.save(`AI-Opportunity-Report-${data.name.replace(/\s+/g, '-')}.pdf`)
 }
