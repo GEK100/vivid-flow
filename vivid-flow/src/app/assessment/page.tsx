@@ -15,7 +15,9 @@ import {
   Send,
   Loader2,
   ClipboardCheck,
+  Download,
 } from 'lucide-react'
+import { generateReport } from '@/utils/generateReport'
 
 interface QuizOption {
   label: string
@@ -590,6 +592,30 @@ export default function AssessmentPage() {
                     </motion.div>
                   ))}
                 </div>
+              </div>
+
+              {/* Download Report */}
+              <div className="bg-white rounded-3xl p-8 lg:p-10 border border-slate-200 shadow-sm text-center">
+                <h3 className="text-lg font-display font-bold text-slate-900 mb-3">
+                  Download Your Report
+                </h3>
+                <p className="text-sm text-slate-600 mb-6">
+                  Save your personalised AI readiness report as a PDF to share with your team.
+                </p>
+                <button
+                  onClick={() => generateReport({
+                    name: leadData.name,
+                    email: leadData.email,
+                    score,
+                    category,
+                    recommendations,
+                    answers
+                  })}
+                  className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl text-sm font-semibold transition-colors shadow-lg shadow-indigo-600/20"
+                >
+                  <Download className="w-4 h-4" />
+                  Download PDF Report
+                </button>
               </div>
 
               {/* CTA */}
