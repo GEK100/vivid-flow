@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         sender: { name: 'Vivid Flow Website', email: 'gareth@vividflow.co.uk' },
-        to: [{ email: 'gareth@vividflow.co.uk' }],
+        to: [{ email: 'gareth@ictusflow.com' }],
         subject: subject,
         htmlContent: htmlContent,
       }),
