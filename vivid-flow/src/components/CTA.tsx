@@ -92,7 +92,7 @@ export default function CTA() {
               className="inline-flex items-center justify-center gap-2 bg-transparent hover:bg-white/10 text-white border border-slate-700 hover:border-slate-600 px-8 py-4 rounded-xl text-base font-semibold transition-all w-full sm:w-auto"
             >
               <ClipboardCheck className="w-5 h-5" />
-              AI Readiness Quiz
+              AI Opportunity Assessment
             </motion.a>
           </div>
 

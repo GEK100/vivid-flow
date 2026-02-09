@@ -23,8 +23,8 @@ export default function Home() {
       <Sectors />
       <InterSectionCTA
         badge="Quick Assessment"
-        title="Is your business ready for AI automation?"
-        description="Take our 2-minute readiness quiz and get personalised recommendations."
+        title="What's your AI automation opportunity?"
+        description="Take our 2-minute assessment and get personalised recommendations."
         buttonText="Take the Quiz"
         buttonHref="/assessment"
         variant="dark"

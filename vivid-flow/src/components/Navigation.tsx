@@ -13,7 +13,7 @@ const navLinks = [
 
 const toolLinks = [
   { name: 'ROI Calculator', href: '/roi-calculator', icon: Calculator },
-  { name: 'Readiness Quiz', href: '/assessment', icon: ClipboardCheck },
+  { name: 'Opportunity Assessment', href: '/assessment', icon: ClipboardCheck },
 ]
 
 export default function Navigation() {

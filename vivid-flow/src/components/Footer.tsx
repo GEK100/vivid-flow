@@ -17,7 +17,7 @@ const footerLinks = {
   ],
   tools: [
     { name: 'ROI Calculator', href: '/roi-calculator' },
-    { name: 'AI Readiness Quiz', href: '/assessment' },
+    { name: 'AI Opportunity Assessment', href: '/assessment' },
   ],
   company: [
     { name: 'About Us', href: '#' },

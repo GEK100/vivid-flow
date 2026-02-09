@@ -53,7 +53,7 @@ export default function TermsOfService() {
               <li><strong className="text-white">&quot;Website&quot;</strong> refers to www.vividflow.co.uk and any associated subdomains</li>
               <li><strong className="text-white">&quot;Content&quot;</strong> refers to all text, images, software, code, and other materials available through our website or services</li>
               <li><strong className="text-white">&quot;Deliverables&quot;</strong> refers to any work product, reports, solutions, or materials we create for you as part of our services</li>
-              <li><strong className="text-white">&quot;Free Tools&quot;</strong> refers to our ROI Calculator, AI Readiness Quiz, and any other tools provided at no cost</li>
+              <li><strong className="text-white">&quot;Free Tools&quot;</strong> refers to our ROI Calculator, AI Opportunity Assessment, and any other tools provided at no cost</li>
             </ul>
           </section>
 
@@ -81,7 +81,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-xl sm:text-2xl font-display font-bold text-white mb-4">4. Free Tools and Calculators</h2>
             <p className="text-slate-300 leading-relaxed mb-4">
-              We provide free tools on our website, including an ROI Calculator and AI Readiness Quiz. By using these tools,
+              We provide free tools on our website, including an ROI Calculator and AI Opportunity Assessment. By using these tools,
               you acknowledge and agree that:
             </p>
             <ul className="list-disc list-inside text-slate-300 space-y-2 mb-4">
