@@ -20,9 +20,27 @@ import {
   Loader2,
 } from 'lucide-react'
 
-const EFFICIENCY_FACTOR = 0.6
-const HOURLY_RATE = 25
-const CALL_CONVERSION_RATE = 0.15
+// Research-backed data aligned with assessment calculations
+// Sources: Simply Business 2024, Checkatrade, Paperclip research, QuickBooks 2025
+
+// Average turnover by sector (2024 UK data)
+const sectorTurnover: Record<string, number> = {
+  'Accountancy': 85000,
+  'Legal & Solicitors': 120000,
+  'Electrical Contractors': 75000,
+  'Plumbing & Heating': 84000,
+  'Construction & Main Contractors': 110000,
+  'Landscaping Contractors': 60000,
+  'Restaurants': 250000,
+  'Veterinary Practices': 350000,
+  'Roofing Contractors': 57000,
+  'Painting & Decorating': 55000,
+}
+
+// Constants for calculations
+const ADMIN_REDUCTION_PERCENT = 0.40 // 40% admin time reduction is realistic
+const HOURLY_RATE = 30 // Opportunity cost per hour
+const CALL_CONVERSION_RATE = 0.12 // 12% of missed calls convert when answered
 
 const formatGBP = (value: number) =>
   new Intl.NumberFormat('en-GB', {
@@ -101,12 +119,40 @@ export default function ROICalculatorPage() {
   const animatedMonthly = useAnimatedCounter(showResults ? (results?.monthlySavingsEquivalent ?? 0) : 0)
 
   const calculate = useCallback(() => {
-    const annualHoursSaved = Math.round(inputs.adminHoursPerWeek * EFFICIENCY_FACTOR * 52)
-    const revenueRecovered = Math.round(inputs.missedCallsPerMonth * CALL_CONVERSION_RATE * inputs.avgJobValue * 12)
-    const totalAnnualSavings = Math.round((annualHoursSaved * HOURLY_RATE) + revenueRecovered)
+    // Get sector-specific turnover for reality check
+    const baseTurnover = sectorTurnover[inputs.sector] || 66000
+
+    // Scale turnover by team size (estimate based on employees)
+    const employeeMultiplier = inputs.employees <= 1 ? 1 : Math.min(inputs.employees / 2, 15)
+    const estimatedTurnover = inputs.monthlyRevenue > 0
+      ? inputs.monthlyRevenue * 12
+      : baseTurnover * employeeMultiplier
+
+    // Calculate admin time savings (40% reduction is realistic)
+    const annualHoursSaved = Math.round(inputs.adminHoursPerWeek * ADMIN_REDUCTION_PERCENT * 52)
+    const adminSavings = annualHoursSaved * HOURLY_RATE
+
+    // Calculate missed call revenue recovery
+    // Only a portion of missed calls would convert, scaled by team capacity
+    const capacityFactor = inputs.employees <= 1 ? 0.3 : (inputs.employees <= 5 ? 0.5 : 0.7)
+    const callsRecoverable = Math.round(inputs.missedCallsPerMonth * CALL_CONVERSION_RATE * capacityFactor)
+    const revenueRecovered = Math.round(callsRecoverable * inputs.avgJobValue * 12)
+
+    // Calculate total potential savings
+    let totalAnnualSavings = Math.round(adminSavings + revenueRecovered)
+
+    // Reality check: Cap at realistic percentage of turnover
+    // Solo: 12%, Small team: 15%, Medium+: 18%
+    const maxPercent = inputs.employees <= 1 ? 0.12 : (inputs.employees <= 5 ? 0.15 : 0.18)
+    const maxSavings = Math.round(estimatedTurnover * maxPercent)
+    totalAnnualSavings = Math.min(totalAnnualSavings, maxSavings)
+
+    // Round to nearest £500 for cleaner presentation
+    totalAnnualSavings = Math.round(totalAnnualSavings / 500) * 500
+
     const monthlySavingsEquivalent = Math.round(totalAnnualSavings / 12)
 
-    setResults({ annualHoursSaved, revenueRecovered, totalAnnualSavings, monthlySavingsEquivalent })
+    setResults({ annualHoursSaved, revenueRecovered: Math.min(revenueRecovered, totalAnnualSavings - adminSavings), totalAnnualSavings, monthlySavingsEquivalent })
     setShowResults(true)
   }, [inputs])
 
@@ -306,7 +352,7 @@ export default function ROICalculatorPage() {
                   whileTap={{ scale: 0.99 }}
                   className="w-full inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-xl text-base font-semibold transition-colors shadow-lg shadow-indigo-600/20"
                 >
-                  Calculate My Savings
+                  Calculate My Potential Savings
                   <ArrowRight className="w-4 h-4" />
                 </motion.button>
               </div>
@@ -323,10 +369,10 @@ export default function ROICalculatorPage() {
                     className="bg-white rounded-3xl p-8 lg:p-10 border border-slate-200 shadow-sm"
                   >
                     <h2 className="text-xl font-display font-bold text-slate-900 mb-2">
-                      Your Estimated Savings
+                      Your Potential Savings
                     </h2>
                     <p className="text-sm text-slate-500 mb-8">
-                      Based on your inputs, here is what AI automation could save your business.
+                      Based on your inputs and UK industry research, here is what AI automation could potentially save your business.
                     </p>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -334,7 +380,7 @@ export default function ROICalculatorPage() {
                       <div className="col-span-2 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-6 text-white">
                         <div className="flex items-center gap-2 mb-2">
                           <TrendingUp className="w-5 h-5 opacity-80" />
-                          <span className="text-sm font-medium opacity-80">Total Annual Savings</span>
+                          <span className="text-sm font-medium opacity-80">Estimated Annual Potential</span>
                         </div>
                         <div className="text-4xl font-display font-bold">
                           {formatGBP(animatedTotal)}
@@ -345,7 +391,7 @@ export default function ROICalculatorPage() {
                       <div className="bg-emerald-50 rounded-2xl p-5 border border-emerald-100">
                         <div className="flex items-center gap-2 mb-2">
                           <Clock className="w-4 h-4 text-emerald-600" />
-                          <span className="text-xs font-medium text-emerald-700">Hours Saved/Year</span>
+                          <span className="text-xs font-medium text-emerald-700">Potential Hours Saved/Year</span>
                         </div>
                         <div className="text-2xl font-display font-bold text-slate-900">
                           {animatedHours}
@@ -356,7 +402,7 @@ export default function ROICalculatorPage() {
                       <div className="bg-blue-50 rounded-2xl p-5 border border-blue-100">
                         <div className="flex items-center gap-2 mb-2">
                           <Phone className="w-4 h-4 text-blue-600" />
-                          <span className="text-xs font-medium text-blue-700">Revenue Recovered</span>
+                          <span className="text-xs font-medium text-blue-700">Potential Revenue Recovery</span>
                         </div>
                         <div className="text-2xl font-display font-bold text-slate-900">
                           {formatGBP(animatedRevenue)}
@@ -367,7 +413,7 @@ export default function ROICalculatorPage() {
                       <div className="col-span-2 bg-amber-50 rounded-2xl p-5 border border-amber-100">
                         <div className="flex items-center gap-2 mb-2">
                           <PoundSterling className="w-4 h-4 text-amber-600" />
-                          <span className="text-xs font-medium text-amber-700">Monthly Savings Equivalent</span>
+                          <span className="text-xs font-medium text-amber-700">Potential Monthly Savings</span>
                         </div>
                         <div className="text-2xl font-display font-bold text-slate-900">
                           {formatGBP(animatedMonthly)}<span className="text-sm font-normal text-slate-500">/month</span>
@@ -376,8 +422,9 @@ export default function ROICalculatorPage() {
                     </div>
 
                     <p className="text-xs text-slate-400 mt-6 leading-relaxed">
-                      Estimates based on 60% admin time reduction and 15% missed-call conversion rate.
-                      Actual savings may vary. Book a free discovery call for a personalised assessment.
+                      Estimates based on UK industry research: 40% admin time reduction and 12% missed-call conversion rate.
+                      Results are capped at realistic percentages of your estimated turnover. Actual savings may vary.
+                      Book a free discovery call for a personalised assessment.
                     </p>
                   </motion.div>
                 )}
