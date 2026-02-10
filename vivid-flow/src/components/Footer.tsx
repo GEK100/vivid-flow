@@ -1,6 +1,6 @@
 'use client'
 
-import { Zap, Linkedin, Twitter, Mail, Shield } from 'lucide-react'
+import { Zap, Shield } from 'lucide-react'
 
 const footerLinks = {
   solutions: [
@@ -20,8 +20,6 @@ const footerLinks = {
     { name: 'AI Opportunity Assessment', href: '/assessment' },
   ],
   company: [
-    { name: 'About Us', href: '#' },
-    { name: 'Case Studies', href: '#' },
     { name: 'Contact', href: '/#contact' },
   ],
   legal: [
@@ -52,27 +50,6 @@ export default function Footer() {
               enterprise-grade automation with local business pragmatism.
             </p>
 
-            {/* Social Links */}
-            <div className="flex gap-3">
-              <a
-                href="#"
-                className="w-10 h-10 rounded-lg bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-indigo-600 hover:text-white transition-all"
-              >
-                <Linkedin className="w-4 h-4" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-lg bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-indigo-600 hover:text-white transition-all"
-              >
-                <Twitter className="w-4 h-4" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-lg bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-indigo-600 hover:text-white transition-all"
-              >
-                <Mail className="w-4 h-4" />
-              </a>
-            </div>
           </div>
 
           {/* Solutions */}
