@@ -20,14 +20,13 @@ export default function Services() {
           className="text-center max-w-2xl mx-auto mb-16"
         >
           <span className="inline-block text-xs font-bold text-indigo-600 uppercase tracking-widest mb-4">
-            What We Do
+            Our Solutions
           </span>
           <h2 className="text-3xl lg:text-4xl font-display font-bold text-slate-900 mb-4">
-            Intelligent Infrastructure
+            What AI Solutions Do Small Businesses Need?
           </h2>
           <p className="text-lg text-slate-600 leading-relaxed">
-            We don't just "do AI". We build robust, invisible systems that run your
-            business while you focus on the work that pays.
+            We build robust, invisible systems that run your business while you focus on the work that pays. Here are the core AI solutions that help UK SMEs save time and grow.
           </p>
         </motion.div>
 
@@ -183,6 +182,57 @@ export default function Services() {
             </div>
           </motion.div>
         </div>
+
+        {/* Comparison Table for AI Extraction */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="mt-16"
+        >
+          <h3 className="text-xl font-display font-bold text-slate-900 mb-6 text-center">
+            AI Solutions Comparison
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left border-collapse bg-white rounded-2xl overflow-hidden border border-slate-200">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200">
+                  <th className="px-6 py-4 font-semibold text-slate-900">Solution</th>
+                  <th className="px-6 py-4 font-semibold text-slate-900">What It Does</th>
+                  <th className="px-6 py-4 font-semibold text-slate-900">Best For</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                <tr>
+                  <td className="px-6 py-4 font-medium text-slate-900">AI Voice Receptionist</td>
+                  <td className="px-6 py-4 text-slate-600">Answers calls, qualifies leads, books appointments 24/7</td>
+                  <td className="px-6 py-4 text-slate-600">Businesses missing calls during busy periods</td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 font-medium text-slate-900">Smart Invoicing</td>
+                  <td className="px-6 py-4 text-slate-600">Auto-generates invoices on job completion, chases payments</td>
+                  <td className="px-6 py-4 text-slate-600">Trades and service businesses with late payments</td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 font-medium text-slate-900">CRM Sync</td>
+                  <td className="px-6 py-4 text-slate-600">Syncs email, phone logs, and project tools automatically</td>
+                  <td className="px-6 py-4 text-slate-600">Teams using multiple disconnected systems</td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 font-medium text-slate-900">Data Dashboard</td>
+                  <td className="px-6 py-4 text-slate-600">Consolidates spreadsheets into a single source of truth</td>
+                  <td className="px-6 py-4 text-slate-600">Business owners wanting visibility into performance</td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 font-medium text-slate-900">Process Automation</td>
+                  <td className="px-6 py-4 text-slate-600">Automates repetitive tasks like document processing</td>
+                  <td className="px-6 py-4 text-slate-600">Any business with manual, repetitive workflows</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
       </div>
     </section>
   )

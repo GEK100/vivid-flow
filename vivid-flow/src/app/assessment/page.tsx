@@ -29,6 +29,7 @@ import {
   PoundSterling,
   TrendingUp,
 } from 'lucide-react'
+import AuthorByline from '@/components/AuthorByline'
 import { generateReport } from '@/utils/generateReport'
 
 type QuizPhase = 'sector' | 'quiz' | 'lead-capture' | 'results'
@@ -257,9 +258,13 @@ export default function AssessmentPage() {
               </span>
             </div>
             <h1 className="text-3xl lg:text-4xl font-display font-bold text-slate-900 mb-3 tracking-tight">
-              AI Opportunity Assessment
+              Am I Ready for AI Automation?
             </h1>
-            <p className="text-base text-slate-600 leading-relaxed">
+            {/* Extractable definition for AI citation */}
+            <p className="text-base text-slate-600 leading-relaxed mb-2">
+              <strong>An AI readiness assessment</strong> evaluates your business processes to identify automation opportunities and calculate potential savings.
+            </p>
+            <p className="text-sm text-slate-500 leading-relaxed">
               {phase === 'sector'
                 ? 'First, tell us what sector you\'re in so we can ask the right questions.'
                 : 'Answer a few quick questions to discover your automation potential.'}
@@ -644,6 +649,9 @@ export default function AssessmentPage() {
                   <span>No Long-Term Contracts</span>
                 </div>
               </div>
+
+              {/* Author Attribution */}
+              <AuthorByline />
             </motion.div>
           )}
         </div>

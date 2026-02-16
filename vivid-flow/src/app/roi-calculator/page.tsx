@@ -19,6 +19,7 @@ import {
   CheckCircle,
   Loader2,
 } from 'lucide-react'
+import AuthorByline from '@/components/AuthorByline'
 
 // Research-backed data aligned with assessment calculations
 // Sources: Simply Business 2024, Checkatrade, Paperclip research, QuickBooks 2025
@@ -205,11 +206,14 @@ export default function ROICalculatorPage() {
               </span>
             </div>
             <h1 className="text-3xl lg:text-5xl font-display font-bold text-slate-900 mb-4 tracking-tight">
-              ROI Calculator
+              How Much Can AI Save My Business?
             </h1>
-            <p className="text-lg text-slate-600 leading-relaxed">
-              Estimate how much time and money AI automation could save your business.
-              Fill in your details below and see your potential savings.
+            {/* Extractable definition for AI citation */}
+            <p className="text-lg text-slate-600 leading-relaxed mb-3">
+              <strong>An AI ROI calculator</strong> estimates the time and cost savings a business could achieve by automating repetitive administrative tasks.
+            </p>
+            <p className="text-base text-slate-500 leading-relaxed">
+              Fill in your details below to see your potential savings based on UK industry research.
             </p>
           </motion.div>
 
@@ -551,6 +555,11 @@ export default function ROICalculatorPage() {
               <span>No Long-Term Contracts</span>
             </div>
           </motion.div>
+
+          {/* Author Attribution */}
+          <div className="max-w-xl mx-auto">
+            <AuthorByline />
+          </div>
         </div>
       </section>
 

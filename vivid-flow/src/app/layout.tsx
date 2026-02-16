@@ -15,9 +15,9 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'Vivid Flow | AI Automation for Local Business',
-  description: 'We replace manual admin with intelligent workflows. From lead capture to invoicing, Vivid Flow builds the digital infrastructure your local business needs to scale.',
-  keywords: ['AI automation', 'local business', 'SME', 'workflow automation', 'UK business'],
+  title: 'How Can AI Automation Help UK Small Businesses? | Vivid Flow',
+  description: 'AI automation helps UK SMEs save time on admin tasks like answering calls, invoicing, and data entry. Vivid Flow builds intelligent workflows for trades, professional services, and hospitality businesses.',
+  keywords: ['AI automation', 'UK small business', 'SME automation', 'workflow automation', 'AI for trades', 'AI for professional services'],
 }
 
 export default function RootLayout({

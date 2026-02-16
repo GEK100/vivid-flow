@@ -71,13 +71,13 @@ export default function Methodology() {
           className="text-center mb-20"
         >
           <span className="inline-block text-xs font-bold text-indigo-600 uppercase tracking-widest mb-4">
-            Methodology
+            How We Work
           </span>
           <h2 className="text-3xl lg:text-4xl font-display font-bold text-slate-900 mb-4">
-            The Implementation Process
+            How Does AI Implementation Work for Small Businesses?
           </h2>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            We don't disrupt your business. We layer intelligence on top of what already works.
+            We don't disrupt your business. We layer intelligence on top of what already works. Here's our four-step process.
           </p>
         </motion.div>
 

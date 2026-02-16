@@ -4,6 +4,7 @@ import Services from '@/components/Services'
 import InterSectionCTA from '@/components/InterSectionCTA'
 import Sectors from '@/components/Sectors'
 import Methodology from '@/components/Methodology'
+import FAQ from '@/components/FAQ'
 import CTA from '@/components/CTA'
 import Footer from '@/components/Footer'
 
@@ -30,6 +31,7 @@ export default function Home() {
         variant="dark"
       />
       <Methodology />
+      <FAQ />
       <CTA />
       <Footer />
     </main>

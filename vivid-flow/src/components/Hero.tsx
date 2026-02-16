@@ -53,14 +53,23 @@ export default function Hero() {
             <span className="gradient-text">grow your business</span>
           </motion.h1>
 
+          {/* Extractable definition for AI citation */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg lg:text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed"
+            className="text-lg lg:text-xl text-slate-600 mb-4 max-w-2xl mx-auto leading-relaxed"
+          >
+            <strong>AI automation for small businesses</strong> uses artificial intelligence to handle repetitive administrative tasks like answering calls, sending invoices, and managing customer data.
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="text-base lg:text-lg text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed"
           >
             From missed calls to late invoices, we replace the manual work
-            that costs trades, professional services, and hospitality
+            that costs UK trades, professional services, and hospitality
             businesses hours every week.
           </motion.p>
 
